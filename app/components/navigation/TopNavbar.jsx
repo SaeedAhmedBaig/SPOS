@@ -1,6 +1,8 @@
 'use client'
 
-import { Menu, Bell, HelpCircle } from 'lucide-react'
+import { Menu, HelpCircle } from 'lucide-react'
+import UserProfileDropdown from './UserProfileDropdown'
+import NotificationsDropdown from './NotificationsDropdown'
 
 export default function TopNavbar({ onMenuClick }) {
   return (
@@ -23,20 +25,17 @@ export default function TopNavbar({ onMenuClick }) {
           </div>
         </div>
         
-        {/* Right Section */}
+        {/* Right Section - POSITION PRESERVED */}
         <div className="flex items-center gap-2">
           <button className="p-1.5 rounded hover:bg-gray-100 text-gray-500 transition-colors">
             <HelpCircle className="w-4 h-4" />
           </button>
           
-          <button className="p-1.5 rounded hover:bg-gray-100 text-gray-500 transition-colors relative">
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-          </button>
+          {/* Notifications Dropdown */}
+          <NotificationsDropdown />
           
-          <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center ml-2">
-            <span className="text-xs font-medium text-gray-600">JD</span>
-          </div>
+          {/* User Profile Dropdown */}
+          <UserProfileDropdown />
         </div>
       </div>
     </header>

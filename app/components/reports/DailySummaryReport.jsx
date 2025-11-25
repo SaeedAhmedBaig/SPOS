@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import ExportReportButton from './ExportReportButton'
+import Card from '../ui/Card'
+import Input from '../ui/Input'
 
 export default function DailySummaryReport() {
   const [data, setData] = useState([])
@@ -36,7 +38,7 @@ export default function DailySummaryReport() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200">
+      <Card>
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Daily Summary Report</h2>
@@ -45,11 +47,10 @@ export default function DailySummaryReport() {
           <div className="flex items-center space-x-4">
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Date</label>
-              <input
+              <Input
                 type="date"
                 value={filters.date}
                 onChange={(e) => setFilters({ date: e.target.value })}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-gray-900"
               />
             </div>
             <ExportReportButton 
@@ -59,12 +60,12 @@ export default function DailySummaryReport() {
             />
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Summary Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Sales Summary */}
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <Card>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Sales</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -80,10 +81,10 @@ export default function DailySummaryReport() {
               <span className="font-medium text-gray-900">${data.averageTicket?.toLocaleString() || '0'}</span>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Payments Summary */}
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <Card>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Payments</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -99,10 +100,10 @@ export default function DailySummaryReport() {
               <span className="font-medium text-gray-900">${data.digitalSales?.toLocaleString() || '0'}</span>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Products Summary */}
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <Card>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Products</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -118,10 +119,10 @@ export default function DailySummaryReport() {
               <span className="font-medium text-gray-900">{data.returns || '0'}</span>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Customer Summary */}
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <Card>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Customers</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -137,11 +138,11 @@ export default function DailySummaryReport() {
               <span className="font-medium text-gray-900">{data.walkInCustomers || '0'}</span>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Hourly Breakdown */}
-      <div className="bg-white rounded-lg border border-gray-200">
+      <Card>
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Hourly Sales Breakdown</h3>
         </div>
@@ -180,7 +181,7 @@ export default function DailySummaryReport() {
             </div>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
