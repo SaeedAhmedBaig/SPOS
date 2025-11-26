@@ -1,16 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import ExportReportButton from './ExportReportButton'
 import Card from '../ui/Card'
+import Select from '../ui/Select'
 import Table from '../ui/Table'
+import ExportReportButton from './ExportReportButton'
 import { DollarSign, Package, AlertTriangle, AlertCircle } from 'lucide-react'
 
 export default function InventoryReport() {
   const [data, setData] = useState([])
   const [summary, setSummary] = useState({})
   const [loading, setLoading] = useState(true)
-  const [filters] = useState({
+  const [filters, setFilters] = useState({
     category: '',
     status: '',
     warehouse: ''
@@ -18,7 +19,7 @@ export default function InventoryReport() {
 
   useEffect(() => {
     fetchInventoryReport()
-  }, []) // Empty dependency array to run only once
+  }, [filters])
 
   const fetchInventoryReport = async () => {
     try {
@@ -49,19 +50,17 @@ export default function InventoryReport() {
   }
 
   const columns = [
-    { 
-      key: 'name', 
+    {
+      key: 'product',
       header: 'Product',
-      render: (row) => (
-        <div className="text-sm font-medium text-gray-900">{row.name}</div>
-      )
+      render: row => <div className="text-sm font-medium text-gray-900">{row.name}</div>
     },
     { key: 'sku', header: 'SKU' },
     { key: 'currentStock', header: 'Current Stock' },
-    { 
-      key: 'status', 
+    {
+      key: 'status',
       header: 'Status',
-      render: (row) => {
+      render: row => {
         const stockStatus = getStockStatus(row.currentStock, row.reorderLevel)
         return (
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stockStatus.color}`}>
@@ -70,42 +69,72 @@ export default function InventoryReport() {
         )
       }
     },
-    { 
-      key: 'costValue', 
+    {
+      key: 'costValue',
       header: 'Cost Value',
-      render: (row) => `$${((row.cost || 0) * (row.currentStock || 0))?.toFixed(2)}`
+      render: row => `$${(row.cost * row.currentStock)?.toFixed(2)}`
     },
-    { 
-      key: 'retailValue', 
+    {
+      key: 'retailValue',
       header: 'Retail Value',
-      render: (row) => `$${((row.price || 0) * (row.currentStock || 0))?.toFixed(2)}`
+      render: row => `$${(row.price * row.currentStock)?.toFixed(2)}`
     },
-    { 
-      key: 'category', 
+    {
+      key: 'category',
       header: 'Category',
-      render: (row) => row.category?.name || 'Uncategorized'
+      render: row => row.category?.name || 'Uncategorized'
     }
   ]
 
-  // Safe data access with fallbacks
-  const safeData = Array.isArray(data) ? data : []
-  const safeSummary = summary || {}
-
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header & Filters */}
       <Card>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Inventory Report</h2>
             <p className="text-gray-700">Current stock levels and inventory value</p>
           </div>
-          <ExportReportButton 
-            reportType="inventory"
-            filters={filters}
-            data={safeData}
-            summary={safeSummary}
-          />
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+            <Select
+              value={filters.category}
+              onChange={value => setFilters(prev => ({ ...prev, category: value }))}
+              options={[
+                { value: '', label: 'All Categories' },
+                { value: 'electronics', label: 'Electronics' },
+                { value: 'clothing', label: 'Clothing' },
+                { value: 'furniture', label: 'Furniture' }
+              ]}
+              placeholder="Category"
+            />
+            <Select
+              value={filters.status}
+              onChange={value => setFilters(prev => ({ ...prev, status: value }))}
+              options={[
+                { value: '', label: 'All Status' },
+                { value: 'in_stock', label: 'In Stock' },
+                { value: 'low_stock', label: 'Low Stock' },
+                { value: 'out_of_stock', label: 'Out of Stock' }
+              ]}
+              placeholder="Status"
+            />
+            <Select
+              value={filters.warehouse}
+              onChange={value => setFilters(prev => ({ ...prev, warehouse: value }))}
+              options={[
+                { value: '', label: 'All Warehouses' },
+                { value: 'warehouse_1', label: 'Warehouse 1' },
+                { value: 'warehouse_2', label: 'Warehouse 2' }
+              ]}
+              placeholder="Warehouse"
+            />
+            <ExportReportButton
+              reportType="inventory"
+              filters={filters}
+              data={data}
+              summary={summary}
+            />
+          </div>
         </div>
       </Card>
 
@@ -115,7 +144,7 @@ export default function InventoryReport() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-700">Total Inventory Value</p>
-              <p className="text-2xl font-bold text-gray-900">${safeSummary.totalValue?.toLocaleString() || '0'}</p>
+              <p className="text-2xl font-bold text-gray-900">${summary.totalValue?.toLocaleString() || '0'}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
               <DollarSign className="w-6 h-6 text-blue-600" />
@@ -127,7 +156,7 @@ export default function InventoryReport() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-700">Total Products</p>
-              <p className="text-2xl font-bold text-gray-900">{safeSummary.totalProducts?.toLocaleString() || '0'}</p>
+              <p className="text-2xl font-bold text-gray-900">{summary.totalProducts?.toLocaleString() || '0'}</p>
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
               <Package className="w-6 h-6 text-green-600" />
@@ -139,7 +168,7 @@ export default function InventoryReport() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-700">Low Stock Items</p>
-              <p className="text-2xl font-bold text-gray-900">{safeSummary.lowStockItems?.toLocaleString() || '0'}</p>
+              <p className="text-2xl font-bold text-gray-900">{summary.lowStockItems?.toLocaleString() || '0'}</p>
             </div>
             <div className="p-3 bg-yellow-100 rounded-lg">
               <AlertTriangle className="w-6 h-6 text-yellow-600" />
@@ -151,7 +180,7 @@ export default function InventoryReport() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-700">Out of Stock</p>
-              <p className="text-2xl font-bold text-gray-900">{safeSummary.outOfStockItems?.toLocaleString() || '0'}</p>
+              <p className="text-2xl font-bold text-gray-900">{summary.outOfStockItems?.toLocaleString() || '0'}</p>
             </div>
             <div className="p-3 bg-red-100 rounded-lg">
               <AlertCircle className="w-6 h-6 text-red-600" />
@@ -167,7 +196,7 @@ export default function InventoryReport() {
         </div>
         <Table
           columns={columns}
-          data={safeData}
+          data={data}
           loading={loading}
           emptyMessage="No inventory data found"
         />

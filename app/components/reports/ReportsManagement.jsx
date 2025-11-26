@@ -7,74 +7,43 @@ import InventoryReport from './InventoryReport'
 import PurchaseReport from './PurchaseReport'
 import CustomerReport from './CustomerReport'
 import SupplierReport from './SupplierReport'
-import ProfitLossReport from './ProfitLossReport'
+
+const TABS = [
+  { id: 'sales', label: 'Sales Report', component: SalesReport },
+  { id: 'daily', label: 'Daily Summary', component: DailySummaryReport },
+  { id: 'inventory', label: 'Inventory Report', component: InventoryReport },
+  { id: 'purchase', label: 'Purchase Report', component: PurchaseReport },
+  { id: 'customer', label: 'Customer Report', component: CustomerReport },
+  { id: 'supplier', label: 'Supplier Report', component: SupplierReport },
+]
 
 export default function ReportsManagement() {
   const [activeTab, setActiveTab] = useState('sales')
 
-  const tabs = [
-    { id: 'sales', name: 'Sales Report' },
-    { id: 'daily-summary', name: 'Daily Summary' },
-    { id: 'inventory', name: 'Inventory Report' },
-    { id: 'purchase', name: 'Purchase Report' },
-    { id: 'customer', name: 'Customer Report' },
-    { id: 'supplier', name: 'Supplier Report' },
-    { id: 'profit-loss', name: 'Profit & Loss' }
-  ]
-
-  const renderReport = () => {
-    switch (activeTab) {
-      case 'sales':
-        return <SalesReport />
-      case 'daily-summary':
-        return <DailySummaryReport />
-      case 'inventory':
-        return <InventoryReport />
-      case 'purchase':
-        return <PurchaseReport />
-      case 'customer':
-        return <CustomerReport />
-      case 'supplier':
-        return <SupplierReport />
-      case 'profit-loss':
-        return <ProfitLossReport />
-      default:
-        return <SalesReport />
-    }
-  }
+  const ActiveComponent = TABS.find(tab => tab.id === activeTab)?.component
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-          <p className="text-gray-700">Analyze your business performance and insights</p>
-        </div>
-      </div>
-
+    <div className="flex flex-col h-full w-full bg-gray-50">
       {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8 overflow-x-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.id
-                  ? 'border-black text-gray-900'
-                  : 'border-transparent text-gray-700 hover:text-gray-900 hover:border-gray-300'
-              }`}
-            >
-              {tab.name}
-            </button>
-          ))}
-        </nav>
+      <div className="flex border-b border-gray-200 bg-white shadow-sm">
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-3 text-sm font-medium transition-all ${
+              activeTab === tab.id
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Report Content */}
-      <div className="min-h-96">
-        {renderReport()}
+      <div className="flex-1 overflow-auto p-6">
+        {ActiveComponent ? <ActiveComponent /> : <div>No report selected</div>}
       </div>
     </div>
   )

@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import ExportReportButton from './ExportReportButton'
 import Card from '../ui/Card'
 import Table from '../ui/Table'
 import Select from '../ui/Select'
-import Input from '../ui/Input'
-import DateRangePicker from '../ui/DateRangePicker' // fixed: default import
+import DateRangePicker from '../ui/DateRangePicker'
+import ExportReportButton from './ExportReportButton'
 
 export default function CustomerReport() {
   const [data, setData] = useState([])
@@ -16,8 +15,7 @@ export default function CustomerReport() {
     dateRange: 'last_30_days',
     startDate: '',
     endDate: '',
-    customerType: '',
-    page: 1
+    customerType: ''
   })
 
   const dateRanges = [
@@ -46,8 +44,6 @@ export default function CustomerReport() {
     try {
       setLoading(true)
       const params = new URLSearchParams({
-        page: filters.page,
-        limit: 20,
         ...(filters.dateRange && { dateRange: filters.dateRange }),
         ...(filters.startDate && { startDate: filters.startDate }),
         ...(filters.endDate && { endDate: filters.endDate }),
@@ -68,11 +64,7 @@ export default function CustomerReport() {
   }
 
   const handleFilterChange = (field, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [field]: value,
-      page: field !== 'page' ? 1 : prev.page
-    }))
+    setFilters(prev => ({ ...prev, [field]: value }))
   }
 
   const handleDateRangeChange = (range) => {
@@ -80,8 +72,7 @@ export default function CustomerReport() {
       ...prev,
       dateRange: range.type,
       startDate: range.startDate,
-      endDate: range.endDate,
-      page: 1
+      endDate: range.endDate
     }))
   }
 
@@ -99,7 +90,7 @@ export default function CustomerReport() {
     { 
       key: 'customer', 
       header: 'Customer',
-      render: (row) => (
+      render: row => (
         <div>
           <div className="text-sm font-medium text-gray-900">{row.name}</div>
           <div className="text-sm text-gray-700">{row.email}</div>
@@ -110,37 +101,29 @@ export default function CustomerReport() {
     { 
       key: 'type', 
       header: 'Type',
-      render: (row) => (
+      render: row => (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCustomerTypeColor(row.type)}`}>
           {row.type || 'regular'}
         </span>
       )
     },
     { key: 'totalOrders', header: 'Total Orders' },
-    { key: 'totalSpent', header: 'Total Spent', render: (row) => `$${row.totalSpent?.toLocaleString()}` },
-    { key: 'averageOrderValue', header: 'Avg. Order', render: (row) => `$${row.averageOrderValue?.toLocaleString()}` },
-    { key: 'lastOrderDate', header: 'Last Order', render: (row) => row.lastOrderDate ? new Date(row.lastOrderDate).toLocaleDateString() : 'Never' },
-    { key: 'status', header: 'Status', render: (row) => (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-        {row.status || 'active'}
-      </span>
-    )}
+    { key: 'totalSpent', header: 'Total Spent', render: row => `$${row.totalSpent?.toLocaleString()}` },
+    { key: 'averageOrderValue', header: 'Avg. Order', render: row => `$${row.averageOrderValue?.toLocaleString()}` },
+    { key: 'lastOrderDate', header: 'Last Order', render: row => row.lastOrderDate ? new Date(row.lastOrderDate).toLocaleDateString() : 'Never' }
   ]
 
   return (
     <div className="space-y-6">
       {/* Filters */}
       <Card>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Date Range</label>
-            <Select
-              value={filters.dateRange}
-              onChange={(value) => handleFilterChange('dateRange', value)}
-              options={dateRanges}
-            />
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Select
+            value={filters.dateRange}
+            onChange={val => handleFilterChange('dateRange', val)}
+            options={dateRanges}
+            placeholder="Date Range"
+          />
           {filters.dateRange === 'custom' && (
             <DateRangePicker
               startDate={filters.startDate}
@@ -148,22 +131,13 @@ export default function CustomerReport() {
               onChange={handleDateRangeChange}
             />
           )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Customer Type</label>
-            <Select
-              value={filters.customerType}
-              onChange={(value) => handleFilterChange('customerType', value)}
-              options={customerTypes}
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-700">
-            Showing {data.length} customers
-          </div>
-          <ExportReportButton 
+          <Select
+            value={filters.customerType}
+            onChange={val => handleFilterChange('customerType', val)}
+            options={customerTypes}
+            placeholder="Customer Type"
+          />
+          <ExportReportButton
             reportType="customers"
             filters={filters}
             data={data}
@@ -174,23 +148,25 @@ export default function CustomerReport() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Total Customers Card */}
         <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-700">Total Customers</p>
-              <p className="text-2xl font-bold text-gray-900">{summary.totalCustomers?.toLocaleString() || '0'}</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              {/* SVG icon */}
-            </div>
-          </div>
-          <p className="text-xs text-gray-600 mt-2">Active customers in period</p>
+          <p className="text-sm font-medium text-gray-700">Total Customers</p>
+          <p className="text-2xl font-bold text-gray-900">{summary.totalCustomers?.toLocaleString() || '0'}</p>
         </Card>
-        {/* New Customers, Avg. Order Value, Repeat Rate Cards (same structure as above) */}
+        <Card>
+          <p className="text-sm font-medium text-gray-700">New Customers</p>
+          <p className="text-2xl font-bold text-gray-900">{summary.newCustomers?.toLocaleString() || '0'}</p>
+        </Card>
+        <Card>
+          <p className="text-sm font-medium text-gray-700">Returning Customers</p>
+          <p className="text-2xl font-bold text-gray-900">{summary.returningCustomers?.toLocaleString() || '0'}</p>
+        </Card>
+        <Card>
+          <p className="text-sm font-medium text-gray-700">Avg. Order Value</p>
+          <p className="text-2xl font-bold text-gray-900">${summary.averageOrderValue?.toLocaleString() || '0'}</p>
+        </Card>
       </div>
 
-      {/* Customers Table */}
+      {/* Customer Table */}
       <Card>
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Customer Details</h3>
@@ -199,7 +175,7 @@ export default function CustomerReport() {
           columns={columns}
           data={data}
           loading={loading}
-          emptyMessage="No customer data found. Try adjusting your filters."
+          emptyMessage="No customer data found"
         />
       </Card>
     </div>
