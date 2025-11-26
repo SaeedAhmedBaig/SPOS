@@ -16,16 +16,13 @@ export default function ExportReportButton({ reportType, filters = {}, data = []
     }
 
     // Extract headers dynamically
-    const headers = Array.from(new Set(
-      rows.flatMap(row => Object.keys(row))
-    ))
+    const headers = Array.from(new Set(rows.flatMap(row => Object.keys(row))))
 
     const csvContent = [
       headers.join(','), // Header row
       ...rows.map(row => 
         headers.map(h => {
           let value = row[h] ?? ''
-          // Remove commas from string values to prevent CSV issues
           if (typeof value === 'string') value = value.replace(/,/g, ' ')
           return `"${value}"`
         }).join(',')
@@ -42,11 +39,20 @@ export default function ExportReportButton({ reportType, filters = {}, data = []
     document.body.removeChild(link)
   }
 
+  const isDisabled = !data.length && !Object.keys(summary).length
+
   return (
     <button
       type="button"
       onClick={downloadCSV}
-      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition"
+      disabled={isDisabled}
+      className={`
+        inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg 
+        transition-all duration-200
+        ${isDisabled 
+          ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+          : 'bg-black text-white hover:bg-gray-900 shadow-sm'}
+      `}
     >
       <Download className="w-4 h-4 mr-2" />
       Export

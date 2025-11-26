@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { DollarSign, CreditCard, Package, UserPlus } from 'lucide-react'
 import Card from '../ui/Card'
 import Input from '../ui/Input'
 import ExportReportButton from './ExportReportButton'
@@ -30,15 +31,23 @@ export default function DailySummaryReport() {
     }
   }
 
+  const summaryCards = [
+    { title: "Total Sales", value: data.totalSales, prefix: "$", icon: <DollarSign className="w-6 h-6 text-green-600" />, iconBg: "bg-green-100" },
+    { title: "Transactions", value: data.totalTransactions, icon: <CreditCard className="w-6 h-6 text-blue-600" />, iconBg: "bg-blue-100" },
+    { title: "Items Sold", value: data.itemsSold, icon: <Package className="w-6 h-6 text-purple-600" />, iconBg: "bg-purple-100" },
+    { title: "New Customers", value: data.newCustomers, icon: <UserPlus className="w-6 h-6 text-orange-600" />, iconBg: "bg-orange-100" },
+  ]
+
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header & Filters */}
       <Card>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Daily Summary Report</h2>
             <p className="text-gray-700">Overview of daily business performance</p>
           </div>
+
           <div className="flex items-center space-x-4">
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Date</label>
@@ -48,6 +57,7 @@ export default function DailySummaryReport() {
                 onChange={e => setSelectedDate(e.target.value)}
               />
             </div>
+
             <ExportReportButton
               reportType="daily-summary"
               filters={{ date: selectedDate }}
@@ -59,25 +69,24 @@ export default function DailySummaryReport() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <p className="text-sm font-medium text-gray-700">Total Sales</p>
-          <p className="text-2xl font-bold text-gray-900">${data.totalSales?.toLocaleString() || '0'}</p>
-        </Card>
-        <Card>
-          <p className="text-sm font-medium text-gray-700">Transactions</p>
-          <p className="text-2xl font-bold text-gray-900">{data.totalTransactions || '0'}</p>
-        </Card>
-        <Card>
-          <p className="text-sm font-medium text-gray-700">Items Sold</p>
-          <p className="text-2xl font-bold text-gray-900">{data.itemsSold || '0'}</p>
-        </Card>
-        <Card>
-          <p className="text-sm font-medium text-gray-700">New Customers</p>
-          <p className="text-2xl font-bold text-gray-900">{data.newCustomers || '0'}</p>
-        </Card>
+        {summaryCards.map((card, idx) => (
+          <Card key={idx}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700">{card.title}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {card.prefix || ''}{card.value?.toLocaleString() || '0'}
+                </p>
+              </div>
+              <div className={`p-3 ${card.iconBg} rounded-lg`}>
+                {card.icon}
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
 
-      {/* Hourly Breakdown */}
+      {/* Hourly Sales Breakdown */}
       <Card>
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Hourly Sales Breakdown</h3>
